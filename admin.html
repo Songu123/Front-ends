@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        input {
+            width: 50%;
+            border: 1px solid #000;
+            margin: 10px ;
+        }
+    </style>
+    
+</head>
+
+<body >
+    <h2>Quản lí sản phẩm</h2>
+    <div class="modal modal-add">
+        <button class="close close-01">x</button>
+        <div class="form" >
+            <form action="" class="form-add" style="display: flex; flex-direction:column;">
+                <input id = "name"type="text" placeholder="Tên sản phẩm">
+                <input id = "price"type="text" placeholder="Giá">
+                <input id = "image_1"type="text" placeholder="ảnh 1">
+                <input id = "image_2"type="text" placeholder="ảnh 2">
+                <input id = "create" onclick="addProduct()" type="submit" value="create">
+         </form>
+        </div>
+        
+    </div>
+    <div class="modal modal-edit">
+        <button class="close close-02">x</button>
+        <div class="form" >
+            <form action="" class="form-edit" style="display: flex; flex-direction:column;">
+                <input id = "id"type="text" placeholder="Nhập id" disabled>
+                <input id = "name"type="text" placeholder="Tên sản phẩm">
+                <input id = "price"type="text" placeholder="Giá">
+                <input id = "image_1"type="text" placeholder="ảnh 1">
+                <input id = "image_2"type="text" placeholder="ảnh 2">
+                <input id = "update" onclick="updateProduct()" type="submit" value="update">
+            </form>
+        </div>
+    </div>
+    <button class="button"><a href="#">thêm</a></button>
+    <table>  
+        <tr>
+            <th>Action</th>
+            <th>Id</th>
+            <th>Tên sản phẩm</th>
+            <th>Giá</th>
+            <th>Ảnh 1</th>
+            <th>Ảnh 2</th>
+        </tr>
+        <!-- <tr>
+            <td> 
+                <button><a href="#">thêm</a></button>
+                <button><a href="#">sửa</a></button>
+                <button><a href="#">xoá</a></button>
+            </td>
+            <td>Alfreds Futterkiste</td>
+            <td>Alfreds Futterkiste</td>
+            <td>Alfreds Futterkiste</td>
+            <td>Maria Anders</td>
+            <td>Germany</td>
+        </tr> -->
+    </table>
+    <script >
+        var products = JSON.parse(localStorage.getItem("products")) || []
+        readAll()        
+        var modal = document.querySelector(".modal")
+        var modal_add = document.querySelector(".modal-add")
+        var form_add = document.querySelector(".form-add")
+        var modal_edit = document.querySelector(".modal-edit")
+        var form = document.querySelector(".modal .form")
+        var button = document.querySelector(".button")
+
+        button.addEventListener("click", function(){
+            modal_add.style.display = "block"
+            console.log("đã nhấn")
+        })
+        var create = document.querySelector("#create")
+        create.addEventListener("click",function(){
+            modal_add.style.display = "none"
+        })
+
+        var update = document.querySelector("#update")
+        update.addEventListener("click",function(){
+            modal_edit.style.display = "none"
+        })
+        
+        var close_1 = document.querySelector(".close-01")
+        var close_2 = document.querySelector(".close-02")
+        close_1.addEventListener("click", function(){
+            modal_add.style.display = "none"
+        })
+        close_2.addEventListener("click", function(){
+            modal_edit.style.display = "none"
+        })
+     
+        
+        function readAll(){
+            var table = document.querySelector("table")
+            var elements = ""
+            products.forEach((e) => {
+                elements += `
+                <tr>
+                    <td>${e.id}</td>
+                    <td>${e.name}</td>
+                    <td>${e.price}</td>
+                    <td>
+                        <img src="${e.imgSrc1}" alt="${e.altText}" width="100">
+                    </td>
+                    <td>          <img  src="${e.imgSrc2}" alt="${e.altText}"width="100">
+                    </td>
+                    <td> 
+                        <button data-id = "${e.id}"  onclick="editProduct(this)" ><a href="#">sửa</a></button>
+                        <button  onclick ="deleteProduct(${products.indexOf(e)})"><a href="#">xoá</a></button>
+                    </td>
+                    
+                </tr>`
+            })
+            table.innerHTML = elements
+        }
+        function addProduct(){
+
+            var name = document.getElementById("name").value
+            var price = document.getElementById("price").value
+            var image_1 = document.getElementById("image_1").value
+            var image_2 = document.getElementById("image_2").value
+            var items = {
+                id: "id" + Math.random().toString(16).slice(2),
+                name: name,
+                price: price,
+                image_1: image_1,
+                image_2: image_2,
+            }
+            products.push(items)
+            localStorage.setItem("products",JSON.stringify(products))
+            readAll()
+            
+        }
+
+        function editProduct(current){
+            let id = current.dataset.id
+            modal_add.style.display= "none"
+            modal_edit.style.display= "block"
+            var obj = products.filter((e) => e.id == id)[0]
+            document.querySelector(".form-edit #id").value=obj.id
+            document.querySelector(".form-edit #name").value=obj.name
+            document.querySelector(".form-edit #price").value=obj.price
+            document.querySelector(".form-edit #image_1").value=obj.imgSrc1
+            document.querySelector(".form-edit #image_2").value=obj.imgSrc2
+        }
+
+        function updateProduct(){
+            var id =  document.querySelector(".form-edit #id").value
+            var name = document.querySelector(".form-edit #name").value
+            var price = document.querySelector(".form-edit #price").value
+            var imgSrc1 = document.querySelector(".form-edit #image_1").value
+            var imgSrc2 = document.querySelector(".form-edit #image_2").value
+
+            var index = products.findIndex((e) => e.id === id)
+            products[index] = {id, name, price, imgSrc1, imgSrc2}
+            localStorage.setItem("products",JSON.stringify(products))
+            readAll()
+        }
+
+        function deleteProduct(index){
+            var result = confirm("Are you sure to delete?")
+            if(result){
+                products.splice(index, 1)
+                localStorage.setItem("products",JSON.stringify(products))
+                readAll()
+            }
+        }
+        
+        document.querySelector('.form-edit').addEventListener('blur',function(e) {
+            e.preventDefault()
+            alert('ok')
+        })
+        
+
+    </script>
+</body>
+</html>
